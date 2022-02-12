@@ -1,0 +1,4 @@
+host: "localhost:8080"
+port: "8080"
+
+db_url: "user=shaurmyashka password=123 host=localhost dbname=restapi_shortURL sslmode=disable"
