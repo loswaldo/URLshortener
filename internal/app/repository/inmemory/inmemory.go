@@ -3,35 +3,40 @@ package inmemory
 import "errors"
 
 type InMemoryDB struct {
-	store map[string]string // key - longURL value shortURL
+	store map[string]string // key - longURL value - shortURL
 }
 
 func NewInMemoryDB() *InMemoryDB {
 	return &InMemoryDB{store: make(map[string]string)}
 }
 
-func (db *InMemoryDB) GetLongURL(shortURL string) string {
+func (db *InMemoryDB) GetLongURL(shortURL string) (string, error) {
 	for key, value := range db.store {
 		if value == shortURL {
-			return key
+			return key, nil
 		}
 	}
-	return ""
+	return "", nil /*errors.New("I don't have this url in my db")*/
 }
 
-func (db *InMemoryDB) GetShortURL(longURL string) string {
-	value := db.store[longURL]
-	return value
+func (db *InMemoryDB) GetShortURL(longURL string) (string, error) {
+	if value, ok := db.store[longURL]; ok {
+		return value, nil
+	}
+	return "", nil
 }
 
 func (db *InMemoryDB) AddNewURL(longURL, shortURL string) error {
-	if value := db.GetLongURL(longURL); value != "" {
+	if value, _ := db.GetLongURL(longURL); value != "" {
 		return errors.New("I have this URL in my db")
 	}
-	if value := db.GetShortURL(shortURL); value != "" {
+	if value, _ := db.GetShortURL(shortURL); value != "" {
 		return errors.New("I have this URL in my db")
 	}
 
 	db.store[longURL] = shortURL
 	return nil
 }
+
+// http://localhost:8080/shE9uePmAfBKMPyLsxU5ozI
+// http://localhost:8080/shE9uePmAfBKMPyLsxU5ozI

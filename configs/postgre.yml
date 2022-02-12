@@ -1,4 +1,10 @@
-host: "localhost:8080"
-port: "8080"
+#port: "8080"
+#mode: "postgres"
 
-db_url: "user=shaurmyashka password=123 host=localhost dbname=restapi_shortURL sslmode=disable"
+db:
+  host: "db"
+  port: "5432"
+  user: "postgres"
+  password: "pswrdroot"
+  db_name: "postgres"
+  ssl_mode: "disable"
