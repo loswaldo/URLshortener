@@ -3,23 +3,11 @@ FROM golang:1.17
 WORKDIR /go/src
 
 COPY . .
-COPY ./waitPostgres.sh /
-RUN chmod a+x /waitPostgres.sh
+RUN chmod a+x waitPostgres.sh
 
 RUN go build -o ./bin/URLshortener ./cmd/main.go
 
-#CMD ["/go/src/bin/URLshortener"]
-
-#ADD ./pkg ./pkg
-
-#ADD ./servermain ./servermain
-
-#ADD go.mod .
-#
-#ADD go.sum .
-#
-#RUN go build -o ./bin/grpc-fibonacci ./servermain
-#
-#ENTRYPOINT ["/go/src/bin/grpc-fibonacci"]
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get -y install postgresql-client
 
 EXPOSE 8080

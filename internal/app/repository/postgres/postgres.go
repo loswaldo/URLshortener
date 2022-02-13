@@ -27,8 +27,8 @@ func NewPostgresDB(config *Config) (*PostgresDB, error) {
 	db, err := sql.Open(
 		"postgres",
 		fmt.Sprintf(
-			"host=localhost port=%s user=%s dbname=%s password=%s sslmode=%s",
-			/*config.Host,*/ config.Port, config.User, config.DBName, config.Password, config.SSLMode))
+			"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+			config.Host, config.Port, config.User, config.DBName, config.Password, config.SSLMode))
 	if err != nil {
 		return nil, err
 	}

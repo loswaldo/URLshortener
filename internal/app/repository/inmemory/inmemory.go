@@ -16,7 +16,7 @@ func (db *InMemoryDB) GetLongURL(shortURL string) (string, error) {
 			return key, nil
 		}
 	}
-	return "", nil /*errors.New("I don't have this url in my db")*/
+	return "", nil
 }
 
 func (db *InMemoryDB) GetShortURL(longURL string) (string, error) {
@@ -27,10 +27,10 @@ func (db *InMemoryDB) GetShortURL(longURL string) (string, error) {
 }
 
 func (db *InMemoryDB) AddNewURL(longURL, shortURL string) error {
-	if value, _ := db.GetLongURL(longURL); value != "" {
+	if value, _ := db.GetLongURL(shortURL); value != "" {
 		return errors.New("I have this URL in my db")
 	}
-	if value, _ := db.GetShortURL(shortURL); value != "" {
+	if value, _ := db.GetShortURL(longURL); value != "" {
 		return errors.New("I have this URL in my db")
 	}
 

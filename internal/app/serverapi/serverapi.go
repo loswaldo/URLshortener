@@ -19,7 +19,6 @@ type ServerAPI struct {
 	logger *logrus.Logger
 	router *mux.Router
 	store  *repository.Rep
-	//store *store.Store
 }
 
 func New(config *Config) *ServerAPI {
@@ -41,7 +40,7 @@ func (s *ServerAPI) Start() error {
 	s.configureRouter()
 
 	s.logger.Info("starting api server")
-	return http.ListenAndServe(s.config.BindAddr, s.router)
+	return http.ListenAndServe(s.config.Addr, s.router)
 }
 
 func (s *ServerAPI) configureRouter() {
@@ -50,13 +49,16 @@ func (s *ServerAPI) configureRouter() {
 
 func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		html, err := template.ParseFiles("internal/app/serverapi/getShort.html")
+
+		html, err := template.ParseFiles("/internal/app/serverapi/getShort.html")
 		if err != nil {
-			panic(err) /*todo: remove panic*/
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 		err = html.Execute(w, nil)
 		if err != nil {
-			panic(err) /*todo: remove panic*/
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 		if r.Method == http.MethodPost { //получение короткой ссылки
 			longUrl := strings.Trim(r.FormValue("longUrl"), " ")
@@ -67,13 +69,19 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 			var shortURL string
 			id, err := gonanoid.Generate(gonan, 10) //генерация токена
 			if err != nil {
-				panic(err) /*todo: remove panic*/
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
 			}
 			shortURL = "http://localhost:8080/sh?tocken=" + id //генерация короткой ссылки
 			err = s.store.AddNewURL(longUrl, shortURL)         //добавление в базу данных
 			if err != nil {                                    //если не получилось добавить в бд
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
+				if value, err := s.store.GetShortURL(longUrl); err != nil {
+					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+					return
+				} else {
+					io.WriteString(w, value)
+				}
+
 			} else {
 				io.WriteString(w, shortURL)
 			}
@@ -86,11 +94,9 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 				if err != nil {
 					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 					return
-					/*todo; err*/
 				} else if longURL == "" {
 					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 					return
-					/*todo:*/
 				} else {
 					io.WriteString(w, longURL)
 				}
@@ -101,5 +107,3 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 		}
 	}
 }
-
-// http://localhost:8080/sh?tocken=BtBGyOXgUc

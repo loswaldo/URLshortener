@@ -10,6 +10,7 @@ services:
     command: ["./waitPostgres.sh",  "db", "/go/src/bin/URLshortener"]
     environment:
       - DB_PASSWORD=pswrdroot
+      - STORAGE=POSTGRES
 
   db:
     restart: always

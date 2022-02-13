@@ -13,15 +13,6 @@ import (
 )
 
 func main() {
-	// read config
-	// if postgre{
-	//	create postgre table
-	//} else{
-	//	create inmemory table
-	//}
-	/*need create interface for two db*/
-
-	//need struct for server; contains http.Server
 	if value, ok := os.LookupEnv("STORAGE"); ok == true {
 		fmt.Println(value)
 		config := loadConfig()
@@ -42,9 +33,7 @@ func main() {
 		if err := s.Start(); err != nil {
 			log.Fatal(err)
 		}
-
 	}
-
 }
 
 func loadConfig() *serverapi.Config {
