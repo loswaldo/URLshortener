@@ -3,11 +3,12 @@ FROM golang:1.17
 WORKDIR /go/src
 
 COPY . .
-
-RUN pwd
+COPY ./waitPostgres.sh /
+RUN chmod a+x /waitPostgres.sh
 
 RUN go build -o ./bin/URLshortener ./cmd/main.go
-CMD ["/go/src/bin/URLshortener"]
+
+#CMD ["/go/src/bin/URLshortener"]
 
 #ADD ./pkg ./pkg
 

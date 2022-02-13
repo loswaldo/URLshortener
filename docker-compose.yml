@@ -2,12 +2,12 @@ version: '3'
 
 services:
   app:
-    build: ./
-#    command: ./wait-for-postgres.sh db ./urllist-app
+    build: .
     ports:
       - 8080:8080
-#    depends_on:
-#      - db
+    depends_on:
+      - db
+    command: ["/waitPostgres",  "db"]
 #    environment:
 #      - DB_PASSWORD=qwerty
 

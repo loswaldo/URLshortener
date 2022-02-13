@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"text/template"
 )
 
@@ -58,7 +59,7 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 			panic(err) /*todo: remove panic*/
 		}
 		if r.Method == http.MethodPost { //получение короткой ссылки
-			longUrl := r.FormValue("longUrl")
+			longUrl := strings.Trim(r.FormValue("longUrl"), " ")
 			if _, err := url.ParseRequestURI(longUrl); err != nil || longUrl == "" { // если нам пришел не url или пустая строка, то bad request
 				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 				return
@@ -100,3 +101,5 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 		}
 	}
 }
+
+// http://localhost:8080/sh?tocken=BtBGyOXgUc

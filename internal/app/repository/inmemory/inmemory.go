@@ -37,6 +37,3 @@ func (db *InMemoryDB) AddNewURL(longURL, shortURL string) error {
 	db.store[longURL] = shortURL
 	return nil
 }
-
-// http://localhost:8080/shE9uePmAfBKMPyLsxU5ozI
-// http://localhost:8080/shE9uePmAfBKMPyLsxU5ozI

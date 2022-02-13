@@ -29,7 +29,6 @@ func main() {
 		postdb, err := postgres.NewPostgresDB(postgres.CreateConfig())
 		if err != nil {
 			log.Fatal(err)
-			//s.logger.Fatal(err) /*todo: logger func*/
 		}
 		s.SetStorage(repository.NewRep(postdb))
 		if err := s.Start(); err != nil {

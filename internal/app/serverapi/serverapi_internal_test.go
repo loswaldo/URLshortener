@@ -7,10 +7,10 @@ import (
 	"testing"
 )
 
-func TestServerAPI_HandleHello(t *testing.T) {
+func TestServerAPI_URLShortenerHandler(t *testing.T) {
 	s := New(NewConfig())
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/hello", nil)
-	s.helloHandler().ServeHTTP(rec, req)
+	s.URLShortenerHandler().ServeHTTP(rec, req)
 	assert.Equal(t, rec.Body.String(), "Hello")
 }
