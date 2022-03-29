@@ -1,38 +1,34 @@
 package main
 
 import (
-	"fmt"
-	"github.com/go-yaml/yaml"
-	"github.com/loswaldo/URLshortener/internal/app/repository"
-	"github.com/loswaldo/URLshortener/internal/app/repository/inmemory"
-	"github.com/loswaldo/URLshortener/internal/app/repository/postgres"
-	"github.com/loswaldo/URLshortener/internal/app/serverapi"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/loswaldo/URLshortener/internal/app/repository/inmemory"
+
+	"github.com/go-yaml/yaml"
+	"github.com/loswaldo/URLshortener/internal/app/repository"
+	"github.com/loswaldo/URLshortener/internal/app/repository/postgres"
+	"github.com/loswaldo/URLshortener/internal/app/serverapi"
 )
 
 func main() {
-	if value, ok := os.LookupEnv("STORAGE"); ok == true {
-		fmt.Println(value)
-		config := loadConfig()
-		s := serverapi.New(config)
-		postdb, err := postgres.NewPostgresDB(postgres.CreateConfig())
+	config := loadConfig()
+	s := serverapi.New(config)
+	var storage repository.Store
+	if value, ok := os.LookupEnv("STORAGE"); ok == true && value == "POSTGRES" {
+		var err error
+		storage, err = postgres.NewPostgresDB(postgres.CreateConfig())
 		if err != nil {
 			log.Fatal(err)
 		}
-		s.SetStorage(repository.NewRep(postdb))
-		if err := s.Start(); err != nil {
-			log.Fatal(err)
-		}
 	} else {
-		fmt.Println("inmemory")
-		config := loadConfig()
-		s := serverapi.New(config)
-		s.SetStorage(repository.NewRep(inmemory.NewInMemoryDB()))
-		if err := s.Start(); err != nil {
-			log.Fatal(err)
-		}
+		storage = inmemory.NewInMemoryDB()
+	}
+	s.SetStorage(repository.NewRep(storage))
+	if err := s.Start(); err != nil {
+		log.Fatal(err)
 	}
 }
 
