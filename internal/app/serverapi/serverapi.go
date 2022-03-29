@@ -8,17 +8,16 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"text/template"
 )
-
-var gonan = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
 
 type ServerAPI struct {
 	config *Config
 	logger *logrus.Logger
 	router *mux.Router
-	store  *repository.Rep
+	store  repository.Store
 }
 
 func New(config *Config) *ServerAPI {
@@ -30,7 +29,7 @@ func New(config *Config) *ServerAPI {
 	}
 }
 
-func (s *ServerAPI) SetStorage(r *repository.Rep) {
+func (s *ServerAPI) SetStorage(r repository.Store) {
 	s.store = r
 }
 
@@ -49,8 +48,10 @@ func (s *ServerAPI) configureRouter() {
 
 func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		html, err := template.ParseFiles("/internal/app/serverapi/getShort.html")
+		var gonan = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+		filePath := /*strings.TrimPrefix(*/ "/internal/app/serverapi/getShort.html" /*, "/internal/app/serverapi")*/
+		filePath = os.Getenv("PWD") + filePath
+		html, err := template.ParseFiles(filePath)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return

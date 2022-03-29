@@ -26,7 +26,7 @@ func main() {
 	} else {
 		storage = inmemory.NewInMemoryDB()
 	}
-	s.SetStorage(repository.NewRep(storage))
+	s.SetStorage(storage)
 	if err := s.Start(); err != nil {
 		log.Fatal(err)
 	}
