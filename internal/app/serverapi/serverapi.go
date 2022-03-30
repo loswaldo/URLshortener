@@ -49,7 +49,7 @@ func (s *ServerAPI) configureRouter() {
 func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var gonan = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
-		filePath := /*strings.TrimPrefix(*/ "/internal/app/serverapi/getShort.html" /*, "/internal/app/serverapi")*/
+		filePath := "/internal/app/serverapi/getShort.html"
 		filePath = os.Getenv("PWD") + filePath
 		html, err := template.ParseFiles(filePath)
 		if err != nil {
@@ -61,21 +61,21 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		if r.Method == http.MethodPost { //получение короткой ссылки
+		if r.Method == http.MethodPost {
 			longUrl := strings.Trim(r.FormValue("longUrl"), " ")
-			if _, err := url.ParseRequestURI(longUrl); err != nil || longUrl == "" { // если нам пришел не url или пустая строка, то bad request
+			if _, err := url.ParseRequestURI(longUrl); err != nil || longUrl == "" {
 				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 				return
 			}
 			var shortURL string
-			id, err := gonanoid.Generate(gonan, 10) //генерация токена
+			id, err := gonanoid.Generate(gonan, 10)
 			if err != nil {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
-			shortURL = "http://localhost:8080/sh?tocken=" + id //генерация короткой ссылки
-			err = s.store.AddNewURL(longUrl, shortURL)         //добавление в базу данных
-			if err != nil {                                    //если не получилось добавить в бд
+			shortURL = "http://localhost:8080/sh?tocken=" + id
+			err = s.store.AddNewURL(longUrl, shortURL)
+			if err != nil {
 				if value, err := s.store.GetShortURL(longUrl); err != nil {
 					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 					return
