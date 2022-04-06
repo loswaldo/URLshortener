@@ -2,6 +2,7 @@ package serverapi
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/loswaldo/URLshortener/internal/app/repository"
 	"github.com/matoous/go-nanoid"
@@ -51,21 +52,25 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 
 		filePath := "/internal/app/serverapi/getShort.html"
 		filePath = os.Getenv("PWD") + filePath
+
 		html, err := template.ParseFiles(filePath)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+
 		err = html.Execute(w, nil)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+
 		if r.Method == http.MethodPost {
 			if err, code := URLShortenerPost(w, r, s); err != nil {
 				http.Error(w, http.StatusText(code), code)
 			}
 		}
+
 		if r.Method == http.MethodGet {
 			if err, code := URLShortenerGet(w, r, s); err != nil {
 				http.Error(w, http.StatusText(code), code)
@@ -74,42 +79,51 @@ func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 	}
 }
 func URLShortenerGet(w http.ResponseWriter, r *http.Request, s *ServerAPI) (error, int) {
+
 	shortURL := r.FormValue("shortUrl")
-	if shortURL != "" {
-		longURL, err := s.store.GetLongURL(shortURL)
-		if err != nil {
-			return err, http.StatusInternalServerError
-		} else if longURL == "" {
-			return err, http.StatusBadRequest
-		} else {
-			io.WriteString(w, longURL)
-			return nil, 0
-		}
+	if shortURL == "" {
+		return errors.New("bad request error"), http.StatusBadRequest
 	}
-	return errors.New("bad request error"), http.StatusBadRequest
+
+	longURL, err := s.store.GetLongURL(shortURL)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	if longURL == "" {
+		return err, http.StatusBadRequest
+	}
+
+	io.WriteString(w, longURL)
+
+	return nil, http.StatusOK
 }
 func URLShortenerPost(w http.ResponseWriter, r *http.Request, s *ServerAPI) (error, int) {
-	var gonan = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+	const gonan = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+
 	longUrl := strings.Trim(r.FormValue("longUrl"), " ")
 	if _, err := url.ParseRequestURI(longUrl); err != nil || longUrl == "" {
 		return err, http.StatusBadRequest
 	}
-	var shortURL string
+
 	id, err := gonanoid.Generate(gonan, 10)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	shortURL = "http://localhost:8080/sh?tocken=" + id
+
+	shortURL := fmt.Sprintf("http://localhost:8080/sh?tocken=%s", id)
+
 	err = s.store.AddNewURL(longUrl, shortURL)
 	if err != nil {
-		if value, err := s.store.GetShortURL(longUrl); err != nil {
+		value, err := s.store.GetShortURL(longUrl)
+		if err != nil {
 			return err, http.StatusBadRequest
-		} else {
-			io.WriteString(w, value)
-			return nil, 0
 		}
+		io.WriteString(w, value)
+
+		return nil, http.StatusOK
 	}
 	io.WriteString(w, shortURL)
-	return nil, 0
+
+	return nil, http.StatusOK
 
 }

@@ -65,7 +65,8 @@ func (pDB *PostgresDB) GetShortURL(longURL string) (string, error) {
 	err := row.Scan(&shortURL)
 	if err == sql.ErrNoRows {
 		return "", nil
-	} else if err != nil {
+	}
+	if err != nil {
 		return "", err
 	}
 	return shortURL, nil
@@ -78,7 +79,8 @@ func (pDB *PostgresDB) AddNewURL(longURL, shortURL string) error {
 	if err == sql.ErrNoRows {
 		_, err = pDB.db.Query("INSERT INTO shortUrls (short_url, long_url) values ($1, $2)", shortURL, longURL)
 		return err
-	} else if err != nil {
+	}
+	if err != nil {
 		return err
 	}
 	return errors.New("I have this URLS in db")
