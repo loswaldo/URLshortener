@@ -1,6 +1,3 @@
-#port: "8080"
-#mode: "postgres"
-
 db:
   host: "db"
   port: "5432"

@@ -49,11 +49,9 @@ func (s *ServerAPI) configureRouter() {
 func (s *ServerAPI) URLShortenerHandler() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		const filePath = "/internal/app/serverapi/getShort.html"
 
-		filePath := "/internal/app/serverapi/getShort.html"
-		filePath = os.Getenv("PWD") + filePath
-
-		html, err := template.ParseFiles(filePath)
+		html, err := template.ParseFiles(os.Getenv("PWD") + filePath)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
@@ -125,5 +123,4 @@ func URLShortenerPost(w http.ResponseWriter, r *http.Request, s *ServerAPI) (err
 	io.WriteString(w, shortURL)
 
 	return nil, http.StatusOK
-
 }

@@ -43,5 +43,4 @@ func loadConfig() *serverapi.Config {
 		log.Fatal(err)
 	}
 	return config
-
 }

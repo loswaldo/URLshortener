@@ -30,6 +30,7 @@ func (db *InMemoryDB) AddNewURL(longURL, shortURL string) error {
 	if value, _ := db.GetLongURL(shortURL); value != "" {
 		return errors.New("I have this URL in my db")
 	}
+
 	if value, _ := db.GetShortURL(longURL); value != "" {
 		return errors.New("I have this URL in my db")
 	}
